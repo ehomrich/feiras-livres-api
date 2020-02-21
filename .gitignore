@@ -5,6 +5,9 @@
 ### Environment variables
 .env
 
+### SQLite databases
+*.db
+
 ### Flask ###
 instance/*
 !instance/.gitignore
