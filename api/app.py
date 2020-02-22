@@ -1,6 +1,7 @@
 from flask import Flask
 
 from api.extensions import db, migrate
+from api.feiras_livres.models import Distrito, Subprefeitura, Feira
 
 
 def create_app():
@@ -9,6 +10,7 @@ def create_app():
 
     register_extensions(app)
     register_blueprints(app)
+    register_shell_context(app)
     register_error_handlers(app)
 
     return app
@@ -17,6 +19,17 @@ def create_app():
 def register_extensions(app):
     db.init_app(app)
     migrate.init_app(app, db)
+
+
+def register_shell_context(app):
+    @app.shell_context_processor
+    def db_context():
+        return {
+            'db': db,
+            'Distrito': Distrito,
+            'Subprefeitura': Subprefeitura,
+            'Feira': Feira
+        }
 
 
 def register_blueprints(app):
