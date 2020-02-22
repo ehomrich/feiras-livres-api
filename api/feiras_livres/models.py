@@ -84,7 +84,6 @@ class Feira(db.Model):
     )
     numero = db.Column(
         db.String(5),
-        nullable=False,
         comment='Um número do logradouro onde se localiza a feira livre'
     )
     bairro = db.Column(
@@ -94,7 +93,6 @@ class Feira(db.Model):
     )
     referencia = db.Column(
         db.String(24),
-        nullable=False,
         comment='Ponto de referência da localização da feira livre'
     )
     latitude = db.Column(
