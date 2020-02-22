@@ -12,7 +12,7 @@ class Distrito(db.Model):
         nullable=False,
         comment='Distrito municipal'
     )
-    feiras = db.relationship('Feira', lazy='joined', backref='distrito')
+    feiras = db.relationship('Feira', lazy='select', backref='distrito')
 
 
 class Subprefeitura(db.Model):
@@ -26,7 +26,7 @@ class Subprefeitura(db.Model):
         nullable=False,
         comment='Nome da subprefeitura'
     )
-    feiras = db.relationship('Feira', lazy='joined', backref='subprefeitura')
+    feiras = db.relationship('Feira', lazy='select', backref='subprefeitura')
 
 
 class Feira(db.Model):
