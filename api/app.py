@@ -1,6 +1,8 @@
 from flask import Flask
 
 from api.extensions import db, migrate
+from api import commands
+from api.feiras_livres import blueprint as feiras_livres_bp
 from api.feiras_livres.models import Distrito, Subprefeitura, Feira
 
 
@@ -11,6 +13,7 @@ def create_app():
     register_extensions(app)
     register_blueprints(app)
     register_shell_context(app)
+    register_commands(app)
     register_error_handlers(app)
 
     return app
@@ -33,7 +36,11 @@ def register_shell_context(app):
 
 
 def register_blueprints(app):
-    pass
+    app.register_blueprint(feiras_livres_bp)
+
+
+def register_commands(app):
+    app.cli.add_command(commands.import_data)
 
 
 def register_error_handlers(app):
