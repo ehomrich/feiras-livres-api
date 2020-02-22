@@ -1,6 +1,6 @@
 from flask import Flask
 
-from api.extensions import db, migrate
+from api.extensions import db, migrate, marshmallow
 from api import commands
 from api.feiras_livres import blueprint as feiras_livres_bp
 from api.feiras_livres.models import Distrito, Subprefeitura, Feira
@@ -22,6 +22,7 @@ def create_app():
 def register_extensions(app):
     db.init_app(app)
     migrate.init_app(app, db)
+    marshmallow.init_app(app)
 
 
 def register_shell_context(app):
