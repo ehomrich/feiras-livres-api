@@ -1,9 +1,10 @@
 from flask import request, jsonify
+from werkzeug.exceptions import NotFound
 
 from api.extensions import db
 from api.feiras_livres import blueprint
-from api.feiras_livres.models import Distrito, Feira
-from api.feiras_livres.schemas import FeiraSchema
+from api.feiras_livres.models import Distrito, Subprefeitura, Feira
+from api.feiras_livres.schemas import FeiraSchema, CreateFeiraSchema, UpdateFeiraSchema
 
 READONLY_PROPERTIES = ('id', 'registro', 'distrito', 'subprefeitura',)
 SIMPLE_QS_FILTERS = ('regiao5', 'nome_feira', 'bairro',)
@@ -13,23 +14,42 @@ SIMPLE_QS_FILTERS = ('regiao5', 'nome_feira', 'bairro',)
 def create():
     payload = request.get_json(force=True)
 
-    instance = Feira(**payload)
-    db.session.add(instance)
-    db.session.commit()
+    create_schema = CreateFeiraSchema()
+    errors = create_schema.validate(payload)
 
-    schema = FeiraSchema()
-    return jsonify(schema.dump(instance))
+    if errors:
+        return jsonify(errors), 400
+
+    try:
+        distrito = Distrito.query.get_or_404(payload['codigo_distrito'])
+        subprefeitura = Subprefeitura.query.get_or_404(payload['codigo_subprefeitura'])
+
+        feira = Feira(**payload)
+
+        db.session.add(feira)
+        db.session.commit()
+
+        schema = FeiraSchema()
+        return jsonify(schema.dump(feira))
+    except NotFound:
+        return jsonify(message='Distrito e/ou subprefeitura não encontrados'), 404
 
 
 @blueprint.route('/<registro>', methods=['DELETE'])
 def delete(registro):
-    instance = Feira.query.filter_by(registro=registro).first_or_404()
+    try:
+        feira = Feira.query.filter_by(registro=registro).join('subprefeitura').join('distrito').first_or_404()
 
-    db.session.delete(instance)
-    db.session.commit()
+        schema = FeiraSchema()
+        dump = schema.dump(feira)
 
-    schema = FeiraSchema()
-    return jsonify(schema.dump(instance))
+        db.session.delete(feira)
+        db.session.commit()
+
+        schema = FeiraSchema()
+        return jsonify(dump)
+    except NotFound:
+        return jsonify(message='Feira não encontrada'), 404
 
 
 @blueprint.route('/<registro>', methods=['PUT'])
@@ -37,17 +57,29 @@ def update(registro):
     payload = request.get_json(force=True)
 
     for prop in READONLY_PROPERTIES:
-        payload.pop(prop)
+        payload.pop(prop, None)
 
-    instance = Feira.query.filter_by(registro=registro).first_or_404()
+    update_schema = UpdateFeiraSchema()
+    errors = update_schema.validate(payload)
 
-    for key, value in payload.items():
-        setattr(instance, key, value)
+    if errors:
+        return jsonify(errors), 400
 
-    db.session.commit()
+    try:
+        distrito = Distrito.query.get_or_404(payload['codigo_distrito'])
+        subprefeitura = Subprefeitura.query.get_or_404(payload['codigo_subprefeitura'])
 
-    schema = FeiraSchema()
-    return jsonify(schema.dump(instance))
+        feira = Feira.query.filter_by(registro=registro).first_or_404()
+
+        for key, value in payload.items():
+            setattr(feira, key, value)
+
+        db.session.commit()
+
+        schema = FeiraSchema()
+        return jsonify(schema.dump(feira))
+    except NotFound:
+        return jsonify(message='Distrito e/ou subprefeitura não encontrados'), 404
 
 
 @blueprint.route('/', methods=['GET'])
@@ -60,7 +92,7 @@ def get():
     if related_param is not None:
         query = query.filter(Distrito.nome == related_param)
 
-    result = query.all()
+    results = query.all()
 
     schema = FeiraSchema()
-    return jsonify(schema.dump(result, many=True))
+    return jsonify(schema.dump(results, many=True))
