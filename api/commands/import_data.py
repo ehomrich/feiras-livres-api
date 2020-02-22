@@ -5,7 +5,25 @@ import click
 from flask.cli import with_appcontext
 
 from api.extensions import db
-from api.feiras_livres.models import Distrito, Subprefeitura
+from api.feiras_livres.models import Distrito, Subprefeitura, Feira
+
+KEYS = {
+    'ID': 'id',
+    'LONG': 'longitude',
+    'LAT': 'latitude',
+    'SETCENS': 'setor_censitario',
+    'AREAP': 'area_ponderacao',
+    'CODDIST': 'codigo_distrito',
+    'CODSUBPREF': 'codigo_subprefeitura',
+    'REGIAO5': 'regiao5',
+    'REGIAO8': 'regiao8',
+    'NOME_FEIRA': 'nome_feira',
+    'REGISTRO': 'registro',
+    'LOGRADOURO': 'logradouro',
+    'NUMERO': 'numero',
+    'BAIRRO': 'bairro',
+    'REFERENCIA': 'referencia'
+}
 
 
 def csv_reader_generator(filepath):
@@ -21,11 +39,24 @@ def insert_districts(districts):
         instance = Distrito(**district)
         db.session.add(instance)
 
+    db.session.commit()
+
 
 def insert_subprefectures(subprefectures):
     for subprefecture in subprefectures:
         instance = Subprefeitura(**subprefecture)
         db.session.add(instance)
+
+    db.session.commit()
+
+
+def insert_street_markets(street_markets):
+    for market in street_markets:
+        data = {KEYS[k]: v for k, v in market.items() if k in KEYS}
+        instance = Feira(**data)
+        db.session.add(instance)
+
+    db.session.commit()
 
 
 @click.command()
@@ -55,4 +86,4 @@ def import_data(filepath):
 
     insert_districts(districts)
     insert_subprefectures(subprefectures)
-    db.session.commit()
+    insert_street_markets(street_markets)
