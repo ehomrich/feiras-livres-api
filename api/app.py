@@ -1,7 +1,7 @@
 from flask import Flask
 
+from api import commands, logger
 from api.extensions import db, migrate, marshmallow
-from api import commands
 from api.feiras_livres import blueprint as feiras_livres_bp
 from api.feiras_livres.models import Distrito, Subprefeitura, Feira
 
