@@ -6,9 +6,9 @@ from api.feiras_livres import blueprint as feiras_livres_bp
 from api.feiras_livres.models import Distrito, Subprefeitura, Feira
 
 
-def create_app():
+def create_app(settings='api.config.AppConfig'):
     app = Flask(__name__)
-    app.config.from_object('api.config.AppConfig')
+    app.config.from_object(settings)
 
     register_extensions(app)
     register_blueprints(app)

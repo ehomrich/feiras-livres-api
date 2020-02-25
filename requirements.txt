@@ -3,4 +3,6 @@ flask-marshmallow==0.11.0
 Flask-Migrate==2.5.2
 Flask-SQLAlchemy==2.4.1
 marshmallow-sqlalchemy==0.22.2
+pytest==5.3.5
+pytest-cov==2.8.1
 python-decouple==3.3
