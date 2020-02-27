@@ -235,7 +235,7 @@ As mesmas regras para a criação de feiras se aplicam nesta rota.
 curl --request PUT \
   --url localhost:5000/feiras-livres/AAAA-B \
   --header 'Content-Type: application/json' \
-  --data "codigo_distrito":54,"codigo_subprefeitura":19,"nome_feira":"Feira teste"}
+  --data {"codigo_distrito":54,"codigo_subprefeitura":19,"nome_feira":"Feira teste"}
 ``` 
 ```json
 {
